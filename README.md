@@ -1,5 +1,7 @@
 # tv-vibehack
 
+**English** | [简体中文](README.zh-CN.md)
+
 ## Custom build (this fork)
 
 Based on [Gathin23/tv-vibehack](https://github.com/Gathin23/tv-vibehack) (MIT). The launcher in this fork is customized — the ready-to-install APK is attached to the [latest release](https://github.com/Mayvin168/tv-vibehack/releases/latest).
