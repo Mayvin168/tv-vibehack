@@ -21,10 +21,10 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
     DockDecoration(int dockSize, float density) {
         this.dockSize = dockSize;
         this.density = density;
-        band.setColor(0xFF141416);
+        band.setColor(0x30FFFFFF);
         edge.setStyle(Paint.Style.STROKE);
         edge.setStrokeWidth(density);
-        edge.setColor(0x1FFFFFFF);
+        edge.setColor(0x4DFFFFFF);
     }
 
     @Override
@@ -39,29 +39,22 @@ public class DockDecoration extends RecyclerView.ItemDecoration {
 
     @Override
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-        boolean any = false;
+        // Vertical extent comes from any one attached dock child; the band itself spans the
+        // RecyclerView's full width so it always has a proper head and tail.
         for (int i = 0; i < parent.getChildCount(); i++) {
             View child = parent.getChildAt(i);
             int pos = parent.getChildAdapterPosition(child);
             if (pos < 0 || pos >= dockSize) continue;
             View card = child.findViewById(R.id.card);
-            if (card == null) continue;
-            float l = child.getLeft() + card.getLeft();
-            float t = child.getTop() + card.getTop() + child.getTranslationY();
-            float r = l + card.getWidth();
-            float b = t + card.getHeight();
-            if (!any) {
-                rect.set(l, t, r, b);
-                any = true;
-            } else {
-                rect.union(l, t, r, b);
-            }
+            if (card == null) return;
+            float top = child.getTop() + card.getTop() + child.getTranslationY();
+            float bottom = top + card.getHeight();
+            float pad = 14 * density;
+            rect.set(0, top - pad, parent.getWidth(), bottom + pad);
+            float radius = 34 * density;
+            c.drawRoundRect(rect, radius, radius, band);
+            c.drawRoundRect(rect, radius, radius, edge);
+            return;
         }
-        if (!any) return;
-        float pad = 14 * density;
-        rect.inset(-pad, -pad);
-        float radius = 26 * density;
-        c.drawRoundRect(rect, radius, radius, band);
-        c.drawRoundRect(rect, radius, radius, edge);
     }
 }

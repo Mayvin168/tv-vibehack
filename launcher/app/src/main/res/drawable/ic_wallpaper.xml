@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Picture icon: rounded frame, sun dot upper-left, mountain line along the bottom. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp" android:height="22dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF" android:strokeWidth="1.8"
+        android:pathData="M5,3.5h14a1.5,1.5 0 0 1 1.5,1.5v14a1.5,1.5 0 0 1 -1.5,1.5H5a1.5,1.5 0 0 1 -1.5,-1.5V5A1.5,1.5 0 0 1 5,3.5z" />
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M8.2,6.6a1.7,1.7 0 1 1 0,3.4 1.7,1.7 0 1 1 0,-3.4z" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF" android:strokeWidth="1.8"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M3.8,18.6 L9,12.8 L12.6,16.2 L15.4,13.8 L20.2,18.6" />
+</vector>

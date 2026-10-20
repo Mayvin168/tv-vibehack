@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Home</string>
+    <string name="inputs">输入源</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="settings">设置</string>
+    <string name="choose_input">输入源</string>
+    <string name="connected">已连接</string>
+    <string name="standby">待机</string>
+    <string name="not_connected">未连接设备</string>
+    <string name="live_tv">电视直播</string>
+    <string name="no_inputs">没有可用输入源</string>
+    <string name="good_morning">早上好</string>
+    <string name="good_afternoon">下午好</string>
+    <string name="good_evening">晚上好</string>
+    <string name="good_night">夜深了</string>
+    <string name="ethernet">有线网络</string>
+    <string name="offline">离线</string>
+    <string name="move_mode_hint">移动模式：用方向键移动，按 OK 完成</string>
+    <string name="wp_aurora">星云极光</string>
+    <string name="wp_waves">蓝色波浪</string>
+    <string name="wp_lake">山湖黄昏</string>
+    <string name="wp_borealis">极光雪山</string>
+    <string name="wp_gold">黑金丝绸</string>
+    <string name="wp_forest">云雾森林</string>
+    <string name="wp_desert">沙漠银河</string>
+    <string name="wp_city">都市夜景</string>
+    <string name="wp_sakura">夜樱</string>
+    <string name="wp_glacier">冰川</string>
+    <string name="wp_lava">熔岩</string>
+    <string name="wp_falls">月光瀑布</string>
+    <string name="wp_motion">动态效果</string>
+    <string name="wp_on">开</string>
+    <string name="wp_off">关</string>
+</resources>

@@ -16,4 +16,20 @@
     <string name="good_night">Good night</string>
     <string name="ethernet">Ethernet</string>
     <string name="offline">Offline</string>
+    <string name="move_mode_hint">Move mode: use D-pad to move, OK to finish</string>
+    <string name="wp_aurora">Aurora Nebula</string>
+    <string name="wp_waves">Blue Waves</string>
+    <string name="wp_lake">Mountain Lake</string>
+    <string name="wp_borealis">Aurora Peaks</string>
+    <string name="wp_gold">Black Gold Silk</string>
+    <string name="wp_forest">Misty Forest</string>
+    <string name="wp_desert">Desert Milky Way</string>
+    <string name="wp_city">City Night</string>
+    <string name="wp_sakura">Night Sakura</string>
+    <string name="wp_glacier">Glacier Bay</string>
+    <string name="wp_lava">Lava Flow</string>
+    <string name="wp_falls">Moonlit Falls</string>
+    <string name="wp_motion">Wallpaper motion</string>
+    <string name="wp_on">On</string>
+    <string name="wp_off">Off</string>
 </resources>

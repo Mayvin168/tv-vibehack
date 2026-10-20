@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Home</string>
+    <string name="inputs">Masukan</string>
+    <string name="wifi">Wi-Fi</string>
+    <string name="settings">Pengaturan</string>
+    <string name="choose_input">Masukan</string>
+    <string name="connected">Terhubung</string>
+    <string name="standby">Siaga</string>
+    <string name="not_connected">Tidak ada perangkat</string>
+    <string name="live_tv">TV Langsung</string>
+    <string name="no_inputs">Tidak ada masukan</string>
+    <string name="good_morning">Selamat pagi</string>
+    <string name="good_afternoon">Selamat siang</string>
+    <string name="good_evening">Selamat sore</string>
+    <string name="good_night">Selamat malam</string>
+    <string name="ethernet">Ethernet</string>
+    <string name="offline">Offline</string>
+    <string name="move_mode_hint">Mode geser: gunakan D-pad untuk memindah, OK untuk selesai</string>
+    <string name="wp_aurora">Nebula Aurora</string>
+    <string name="wp_waves">Gelombang Biru</string>
+    <string name="wp_lake">Danau Gunung</string>
+    <string name="wp_borealis">Aurora Salju</string>
+    <string name="wp_gold">Sutra Emas Hitam</string>
+    <string name="wp_forest">Hutan Berkabut</string>
+    <string name="wp_desert">Galaksi Gurun</string>
+    <string name="wp_city">Malam Kota</string>
+    <string name="wp_sakura">Sakura Malam</string>
+    <string name="wp_glacier">Gletser</string>
+    <string name="wp_lava">Aliran Lava</string>
+    <string name="wp_falls">Air Terjun Bulan</string>
+    <string name="wp_motion">Gerakan wallpaper</string>
+    <string name="wp_on">Aktif</string>
+    <string name="wp_off">Mati</string>
+</resources>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ethernet port: rounded jack outline, two pins inside the top, trapezoid neck below. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp" android:height="22dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF" android:strokeWidth="1.8"
+        android:pathData="M6.5,3.5h11a1.5,1.5 0 0 1 1.5,1.5v7a1.5,1.5 0 0 1 -1.5,1.5h-11A1.5,1.5 0 0 1 5,12V5a1.5,1.5 0 0 1 1.5,-1.5z" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF" android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M9,5.2v3.6 M15,5.2v3.6" />
+    <path android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF" android:strokeWidth="1.8"
+        android:strokeLineJoin="round"
+        android:pathData="M8,13.5 L10,20.5 h4 L16,13.5" />
+</vector>

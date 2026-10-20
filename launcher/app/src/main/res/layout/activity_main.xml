@@ -5,12 +5,15 @@
     android:layout_height="match_parent"
     android:background="#FF000000">
 
-    <!-- Ambient glow in the colour of the focused dock app. -->
-    <View
-        android:id="@+id/ambient"
+    <!-- Wallpaper backdrop (bottom layer). -->
+    <ImageView
+        android:id="@+id/wallpaper"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:alpha="0" />
+        android:scaleType="centerCrop"
+        android:src="@drawable/wallpaper"
+        android:contentDescription="@null"
+        android:importantForAccessibility="no" />
 
     <!-- Top shelf: the focused dock app's name, positioned above the dock in code. -->
     <TextView
@@ -20,7 +23,7 @@
         android:layout_marginStart="68dp"
         android:alpha="0"
         android:textColor="#FFFFFFFF"
-        android:textSize="48sp"
+        android:textSize="40sp"
         android:fontFamily="@font/outfit"
         android:fontVariationSettings="'wght' 300"
         android:letterSpacing="-0.02"
@@ -129,10 +132,10 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/btnInputs"
+                    android:id="@+id/btnWallpaper"
                     style="@style/TopButton"
-                    android:text="@string/inputs"
-                    android:drawableStart="@drawable/ic_input"
+                    android:text=""
+                    android:drawableStart="@drawable/ic_wallpaper"
                     android:nextFocusDown="@+id/grid" />
 
                 <TextView

@@ -1,5 +1,9 @@
 # tv-vibehack
 
+> **Custom build (this fork).** Based on [Gathin23/tv-vibehack](https://github.com/Gathin23/tv-vibehack) (MIT), with the launcher customized:
+> 5-icon frosted-glass dock with long-press drag-to-reorder that stays put, 12 built-in wallpapers switchable from the top bar (with an optional slow-drift animation), the wallpaper button next to the network pill, a network icon that follows the connection type, no app-tinted background colors, and a UI that follows the system language (English / 中文 / Bahasa Indonesia).
+> The ready-to-install APK is attached to the [latest release](https://github.com/Mayvin168/tv-vibehack/releases/latest).
+
 **Your TV, minus the ads.** Debloat any Android TV / Google TV over ADB and give it a clean,
 tvOS-inspired launcher. Hand the prompt to Claude Code or any coding assistant, answer a few
 questions about which apps you use, and it does the rest on the real TV.

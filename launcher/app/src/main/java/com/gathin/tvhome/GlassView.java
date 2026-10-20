@@ -29,9 +29,11 @@ public class GlassView extends View {
         super(context, attrs);
         density = getResources().getDisplayMetrics().density;
         radius = 20f * density;
+        // Permanently neutral frosted white: never tinted by the focused app.
+        fill.setColor(0x2EFFFFFF);
         rim.setStyle(Paint.Style.STROKE);
         rim.setStrokeWidth(1.5f * density);
-        rim.setColor(0xCCFFFFFF);
+        rim.setColor(0x59FFFFFF);
         glow.setStyle(Paint.Style.STROKE);
     }
 
@@ -43,7 +45,6 @@ public class GlassView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        fill.setShader(new LinearGradient(0, 0, 0, h, 0x3DFFFFFF, 0x12FFFFFF, Shader.TileMode.CLAMP));
         specular.setShader(new LinearGradient(0, 0, 0, h * 0.45f, 0x66FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
     }
 
