@@ -29,7 +29,7 @@ questions about which apps you use, and it does the rest on the real TV.
 
 | Stock home screen | After |
 |---|---|
-| ![Stock Google TV home with a sponsored ad](docs/stock-home.jpg) | ![tvOS-style launcher](docs/new-home.jpg) |
+| ![Stock Google TV home with a sponsored ad](docs/stock-home.jpg) | ![tvOS-style launcher](docs/new-home.jpg?v=2) |
 
 Everything is reversible: packages are disabled, never uninstalled, and a restore script puts the
 stock launcher back.

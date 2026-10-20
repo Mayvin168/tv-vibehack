@@ -27,7 +27,7 @@
 
 | 原系统桌面 | 改造后 |
 |---|---|
-| ![带广告的 Google TV 原桌面](docs/stock-home.jpg) | ![tvOS 风格启动器](docs/new-home.jpg) |
+| ![带广告的 Google TV 原桌面](docs/stock-home.jpg) | ![tvOS 风格启动器](docs/new-home.jpg?v=2) |
 
 一切都可逆：应用包只是禁用、从不卸载，还有一个恢复脚本可以把原系统桌面装回去。
 
