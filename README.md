@@ -1,8 +1,25 @@
 # tv-vibehack
 
-> **Custom build (this fork).** Based on [Gathin23/tv-vibehack](https://github.com/Gathin23/tv-vibehack) (MIT), with the launcher customized:
-> 5-icon frosted-glass dock with long-press drag-to-reorder that stays put, 12 built-in wallpapers switchable from the top bar (with an optional slow-drift animation), the wallpaper button next to the network pill, a network icon that follows the connection type, no app-tinted background colors, and a UI that follows the system language (English / 中文 / Bahasa Indonesia).
-> The ready-to-install APK is attached to the [latest release](https://github.com/Mayvin168/tv-vibehack/releases/latest).
+## Custom build (this fork)
+
+Based on [Gathin23/tv-vibehack](https://github.com/Gathin23/tv-vibehack) (MIT). The launcher in this fork is customized — the ready-to-install APK is attached to the [latest release](https://github.com/Mayvin168/tv-vibehack/releases/latest).
+
+### Features
+
+- **5-icon frosted-glass dock** — long-press a tile to move it; the layout is saved per icon and survives restarts, app switches and process kills.
+- **12 built-in wallpapers** — switch anytime from the picture button in the top bar; an optional slow-drift "motion" effect can be toggled in the same picker.
+- **Connection-aware network pill** — icon and label follow the active connection (Ethernet / Wi-Fi / Offline).
+- **Clean look** — no app-tinted background colors; neutral white frosted focus highlight; compact hero app title.
+- **Trilingual UI** — follows the system language (English / 中文 / Bahasa Indonesia).
+
+### Version history
+
+**launcher-v2.0 — 2026-10-20** (final custom build, APK in Releases)
+
+- Dock: 5 icons on a full-width frosted band; drag-to-reorder uses a carried-tile move mode with instant persistent save (layout never jumps back).
+- Wallpapers: 12 built in (Nebula Aurora, Blue Waves, Mountain Lake, Aurora Peaks, Black Gold Silk, Misty Forest, Desert Milky Way, City Night, Night Sakura, Glacier Bay, Lava Flow, Moonlit Falls), three-row picker, motion on/off toggle; the chosen wallpaper is remembered across reboots.
+- Top bar: wallpaper button placed left of the network pill; Inputs button removed; network icon follows the connection type.
+- Removed the app-color ambient glow and the tinted hero backdrop; hero title reduced to plain 40sp text.
 
 **Your TV, minus the ads.** Debloat any Android TV / Google TV over ADB and give it a clean,
 tvOS-inspired launcher. Hand the prompt to Claude Code or any coding assistant, answer a few
