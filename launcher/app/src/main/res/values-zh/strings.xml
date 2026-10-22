@@ -32,4 +32,15 @@
     <string name="wp_motion">动态效果</string>
     <string name="wp_on">开</string>
     <string name="wp_off">关</string>
+    <string name="remote_service_label">TV 手机遥控</string>
+    <string name="remote_service_desc">让手机当这台电视的触控板遥控器</string>
+    <string name="remote_title">手机遥控</string>
+    <string name="remote_scan_hint">用手机相机扫码，或在手机浏览器里输入这个地址：</string>
+    <string name="remote_pin">配对码：%1$s（页面要求输入时填它）</string>
+    <string name="remote_same_wifi">手机和电视要连同一个 Wi-Fi</string>
+    <string name="remote_a11y_on">无障碍服务已开启 — 在手机上打开页面就能用了</string>
+    <string name="remote_a11y_off">还差一步：开启无障碍服务，手机才能移动指针、滚动和打字</string>
+    <string name="remote_open_a11y">去开启无障碍</string>
+    <string name="remote_close">关闭</string>
+    <string name="remote_no_network">电视还没联网 — 先连上 Wi-Fi 或网线</string>
 </resources>

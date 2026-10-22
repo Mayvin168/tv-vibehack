@@ -9,6 +9,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.Rect;
@@ -89,6 +90,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private TextView greeting;
     private TextView btnWifi;
     private TextView btnWallpaper;
+    private TextView btnRemote;
     private int wallpaperIndex = 0;
     private SpringAnimation springX, springY;
     private float glassTargetX, glassTargetY;
@@ -161,10 +163,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             s.setSpring(new SpringForce().setStiffness(260f).setDampingRatio(0.58f));
         }
 
+        RemoteServer.start(this);
+
         View btnSettings = findViewById(R.id.btnSettings);
         btnWallpaper = findViewById(R.id.btnWallpaper);
+        btnRemote = findViewById(R.id.btnRemote);
         btnWifi.setOnClickListener(v -> open(new Intent(Settings.ACTION_WIFI_SETTINGS)));
         btnWallpaper.setOnClickListener(v -> showWallpaperPicker());
+        btnRemote.setOnClickListener(v -> showRemotePanel());
         btnSettings.setOnClickListener(v -> open(new Intent(Settings.ACTION_SETTINGS)));
 
         // Keep focus on the top bar at its ends and at the top: Android's focus finder would otherwise
@@ -172,11 +178,12 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View.OnKeyListener pillKeys = (v, keyCode, event) -> {
             if (event.getAction() != KeyEvent.ACTION_DOWN) return false;
             if (keyCode == KeyEvent.KEYCODE_DPAD_UP) return true;
-            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && v.getId() == R.id.btnWallpaper) return true;
+            if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT && v.getId() == R.id.btnRemote) return true;
             return keyCode == KeyEvent.KEYCODE_DPAD_RIGHT && v.getId() == R.id.btnSettings;
         };
         btnWifi.setOnKeyListener(pillKeys);
         btnWallpaper.setOnKeyListener(pillKeys);
+        btnRemote.setOnKeyListener(pillKeys);
         btnSettings.setOnKeyListener(pillKeys);
 
         // Hide the glass when focus leaves the tiles.
@@ -513,6 +520,151 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         wallpaperView.setImageResource(WALLPAPERS[index]);
         getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                 .putString(KEY_WALLPAPER_KEY, WALLPAPER_KEYS[index]).commit();
+    }
+
+    // ---- phone remote ----------------------------------------------------------------------------
+
+    private TextView panelText(CharSequence text, float sp, int color) {
+        TextView tv = new TextView(this);
+        tv.setText(text);
+        tv.setTextSize(sp);
+        tv.setTextColor(color);
+        tv.setGravity(Gravity.CENTER);
+        tv.setLineSpacing(0, 1.25f);
+        return tv;
+    }
+
+    private TextView panelButton(int stringRes) {
+        TextView btn = new TextView(this);
+        btn.setText(stringRes);
+        btn.setTextSize(15);
+        btn.setTextColor(0xFFFFFFFF);
+        btn.setGravity(Gravity.CENTER);
+        btn.setPadding(dp(20), dp(10), dp(20), dp(10));
+        btn.setFocusable(true);
+        btn.setClickable(true);
+        btn.setOnFocusChangeListener((v, focused) ->
+                v.setBackgroundResource(focused ? R.drawable.motion_row_bg : 0));
+        return btn;
+    }
+
+    /** Pairing panel for the phone remote: QR code, address, pairing code and the
+     *  accessibility-service status, centred over the home screen. */
+    private void showRemotePanel() {
+        String url = RemoteServer.pairingUrl(this);
+        boolean a11y = TvAccessibilityService.isRunning();
+
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+        panel.setBackgroundResource(R.drawable.panel_bg);
+        panel.setClickable(true);
+        panel.setOnClickListener(v -> {
+            // Consume clicks so they do not fall through to the dismiss scrim.
+        });
+        panel.setPadding(dp(30), dp(24), dp(30), dp(22));
+        panel.setLayoutParams(new FrameLayout.LayoutParams(dp(520), ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER));
+
+        TextView title = panelText(getString(R.string.remote_title), 19, 0xFFFFFFFF);
+        title.setTypeface(null, android.graphics.Typeface.BOLD);
+        panel.addView(title);
+
+        if (url == null) {
+            TextView noNet = panelText(getString(R.string.remote_no_network), 14, 0xFFF2C169);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            lp.topMargin = dp(14);
+            noNet.setLayoutParams(lp);
+            panel.addView(noNet);
+        } else {
+            TextView hint = panelText(getString(R.string.remote_scan_hint), 13, 0xB3FFFFFF);
+            LinearLayout.LayoutParams hintLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            hintLp.topMargin = dp(10);
+            hint.setLayoutParams(hintLp);
+            panel.addView(hint);
+
+            ImageView qrView = new ImageView(this);
+            Bitmap qrBitmap = QrCode.toBitmap(QrCode.encode(url), dp(196));
+            qrView.setImageBitmap(qrBitmap);
+            LinearLayout.LayoutParams qrLp = new LinearLayout.LayoutParams(dp(196), dp(196));
+            qrLp.gravity = Gravity.CENTER_HORIZONTAL;
+            qrLp.topMargin = dp(14);
+            qrView.setLayoutParams(qrLp);
+            panel.addView(qrView);
+
+            TextView addr = panelText(url, 16.5f, 0xFFFFFFFF);
+            LinearLayout.LayoutParams addrLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            addrLp.topMargin = dp(12);
+            addr.setLayoutParams(addrLp);
+            panel.addView(addr);
+
+            TextView pin = panelText(getString(R.string.remote_pin, RemoteServer.pin(this)),
+                    13.5f, 0xD9FFFFFF);
+            LinearLayout.LayoutParams pinLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            pinLp.topMargin = dp(6);
+            pin.setLayoutParams(pinLp);
+            panel.addView(pin);
+
+            TextView wifi = panelText(getString(R.string.remote_same_wifi), 12, 0x8CFFFFFF);
+            LinearLayout.LayoutParams wifiLp = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            wifiLp.topMargin = dp(4);
+            wifi.setLayoutParams(wifiLp);
+            panel.addView(wifi);
+        }
+
+        TextView status = panelText(getString(a11y ? R.string.remote_a11y_on : R.string.remote_a11y_off),
+                13.5f, a11y ? 0xFF8FE3B0 : 0xFFF2C169);
+        LinearLayout.LayoutParams statusLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        statusLp.topMargin = dp(16);
+        status.setLayoutParams(statusLp);
+        panel.addView(status);
+
+        LinearLayout buttons = new LinearLayout(this);
+        buttons.setOrientation(LinearLayout.HORIZONTAL);
+        buttons.setGravity(Gravity.CENTER);
+        LinearLayout.LayoutParams buttonsLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        buttonsLp.topMargin = dp(16);
+        buttons.setLayoutParams(buttonsLp);
+
+        FrameLayout scrim = new FrameLayout(this);
+        scrim.setBackgroundColor(0x99000000);
+        scrim.addView(panel);
+        final PopupWindow popup = new PopupWindow(scrim,
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT, true);
+        popup.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        popup.setOutsideTouchable(true);
+        popup.setAnimationStyle(0);
+        scrim.setOnClickListener(v -> popup.dismiss());
+
+        TextView openA11y = panelButton(R.string.remote_open_a11y);
+        openA11y.setOnClickListener(v -> {
+            popup.dismiss();
+            open(new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS));
+        });
+        TextView close = panelButton(R.string.remote_close);
+        LinearLayout.LayoutParams closeLp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        closeLp.leftMargin = dp(10);
+        close.setLayoutParams(closeLp);
+        close.setOnClickListener(v -> popup.dismiss());
+        if (!a11y) buttons.addView(openA11y);
+        buttons.addView(close);
+        panel.addView(buttons);
+
+        popup.showAtLocation(root, Gravity.CENTER, 0, 0);
+        panel.setAlpha(0f);
+        panel.setScaleX(0.96f);
+        panel.setScaleY(0.96f);
+        panel.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(200)
+                .setInterpolator(new android.view.animation.DecelerateInterpolator(1.6f)).start();
+        final View focusTarget = a11y ? close : openA11y;
+        panel.post(() -> focusTarget.requestFocus());
     }
 
     /** Thumbnail strip of the built-in wallpapers, dropped below the wallpaper pill. */

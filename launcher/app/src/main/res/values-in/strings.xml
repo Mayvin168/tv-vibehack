@@ -32,4 +32,15 @@
     <string name="wp_motion">Gerakan wallpaper</string>
     <string name="wp_on">Aktif</string>
     <string name="wp_off">Mati</string>
+    <string name="remote_service_label">Remote HP TV</string>
+    <string name="remote_service_desc">Menjadikan HP sebagai remote touchpad untuk TV ini</string>
+    <string name="remote_title">Remote HP</string>
+    <string name="remote_scan_hint">Pindai dengan kamera HP, atau ketik alamat ini di browser HP:</string>
+    <string name="remote_pin">Kode pairing: %1$s (isi jika halaman memintanya)</string>
+    <string name="remote_same_wifi">HP dan TV harus di Wi-Fi yang sama</string>
+    <string name="remote_a11y_on">Layanan aksesibilitas aktif — buka halamannya di HP dan langsung pakai</string>
+    <string name="remote_a11y_off">Satu langkah lagi: aktifkan layanan aksesibilitas agar HP bisa menggerakkan penunjuk, menggulir, dan mengetik</string>
+    <string name="remote_open_a11y">Buka pengaturan Aksesibilitas</string>
+    <string name="remote_close">Tutup</string>
+    <string name="remote_no_network">TV belum terhubung ke jaringan — sambungkan Wi-Fi atau kabel LAN dulu</string>
 </resources>

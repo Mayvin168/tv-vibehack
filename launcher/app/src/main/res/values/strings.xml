@@ -32,4 +32,15 @@
     <string name="wp_motion">Wallpaper motion</string>
     <string name="wp_on">On</string>
     <string name="wp_off">Off</string>
+    <string name="remote_service_label">TV Phone Remote</string>
+    <string name="remote_service_desc">Lets your phone work as a touchpad remote for this TV</string>
+    <string name="remote_title">Phone Remote</string>
+    <string name="remote_scan_hint">Scan with your phone camera, or type this address in your phone browser:</string>
+    <string name="remote_pin">Pairing code: %1$s (if the page asks for it)</string>
+    <string name="remote_same_wifi">Phone and TV must be on the same Wi-Fi</string>
+    <string name="remote_a11y_on">Accessibility service is on — open the page on your phone and start using it</string>
+    <string name="remote_a11y_off">One more step: enable the accessibility service so the phone can move the pointer, scroll and type</string>
+    <string name="remote_open_a11y">Open Accessibility settings</string>
+    <string name="remote_close">Close</string>
+    <string name="remote_no_network">No network connection — connect the TV to Wi-Fi or Ethernet first</string>
 </resources>

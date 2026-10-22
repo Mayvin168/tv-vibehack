@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Phone remote: smartphone outline with a home dot. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="22dp" android:height="22dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="#00000000"
+        android:strokeColor="#FFFFFFFF" android:strokeWidth="1.8"
+        android:strokeLineJoin="round"
+        android:pathData="M7,2.5h10a1.8,1.8 0 0 1 1.8,1.8v15.4a1.8,1.8 0 0 1 -1.8,1.8H7A1.8,1.8 0 0 1 5.2,19.7V4.3A1.8,1.8 0 0 1 7,2.5z" />
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M12,16.9a1.35,1.35 0 1 0 0.001,0z" />
+</vector>

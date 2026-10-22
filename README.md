@@ -13,8 +13,15 @@ Based on [Gathin23/tv-vibehack](https://github.com/Gathin23/tv-vibehack) (MIT). 
 - **Connection-aware network pill** — icon and label follow the active connection (Ethernet / Wi-Fi / Offline).
 - **Clean look** — no app-tinted background colors; neutral white frosted focus highlight; compact hero app title.
 - **Trilingual UI** — follows the system language (English / 中文 / Bahasa Indonesia).
+- **Phone remote** — tap the phone pill in the top bar, scan the QR code, and your phone browser becomes a touchpad remote: one finger moves the pointer, two fingers scroll, plus D-pad, volume and a keyboard that types straight into the TV. Needs the in-app accessibility service enabled once.
 
 ### Version history
+
+**launcher-v2.1 — 2026-10-22** (APK in Releases)
+
+- Phone remote: the launcher serves a remote page on the home network (port 8899); pair by QR code or the 4-digit code shown on the TV.
+- Touchpad with an on-screen pointer (accessibility gestures): one-finger move, two-finger scroll, tap to click; D-pad via accessibility focus, plus Back/Home, volume keys, and phone-keyboard text sync into the focused field.
+- New phone pill in the top bar opens the pairing panel with the QR code, address and service status.
 
 **launcher-v2.0 — 2026-10-20** (final custom build, APK in Releases)
 
