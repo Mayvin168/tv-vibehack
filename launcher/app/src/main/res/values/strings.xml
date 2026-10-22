@@ -30,6 +30,11 @@
     <string name="wp_lava">Lava Flow</string>
     <string name="wp_falls">Moonlit Falls</string>
     <string name="wp_motion">Wallpaper motion</string>
+    <string name="wp_time">Time-of-day wallpaper</string>
+    <string name="wp_t_peak">Peak · Time</string>
+    <string name="wp_t_forest">Mist Forest · Time</string>
+    <string name="wp_t_lake">Lake · Time</string>
+    <string name="wp_t_city">City · Time</string>
     <string name="wp_on">On</string>
     <string name="wp_off">Off</string>
     <string name="remote_service_label">TV Phone Remote</string>

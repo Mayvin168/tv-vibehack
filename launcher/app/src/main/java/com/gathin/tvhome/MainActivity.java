@@ -33,6 +33,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +60,22 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     private static final String KEY_WALLPAPER_INDEX = "wallpaper_index";   // legacy int pref (old builds)
     private static final String KEY_WALLPAPER_KEY = "wallpaper_key";
     private static final String KEY_WALLPAPER_MOTION = "wallpaper_motion";
+    private static final String KEY_WALLPAPER_TIME = "wallpaper_time_mode";
+    private static final String KEY_WALLPAPER_SCENE = "wallpaper_time_scene";
+    /** Time-of-day scenes [scene][band]: four places, each at dawn, day, dusk and night,
+     *  auto-switched by the clock. Bands: 0 dawn, 1 day, 2 dusk, 3 night. */
+    private static final int[][] TIME_WALLPAPERS = {
+            {R.drawable.wallpaper_time_peak_dawn, R.drawable.wallpaper_time_peak_day,
+                    R.drawable.wallpaper_time_peak_dusk, R.drawable.wallpaper_time_peak_night},
+            {R.drawable.wallpaper_time_forest_dawn, R.drawable.wallpaper_time_forest_day,
+                    R.drawable.wallpaper_time_forest_dusk, R.drawable.wallpaper_time_forest_night},
+            {R.drawable.wallpaper_time_lake_dawn, R.drawable.wallpaper_time_lake_day,
+                    R.drawable.wallpaper_time_lake_dusk, R.drawable.wallpaper_time_lake_night},
+            {R.drawable.wallpaper_time_city_dawn, R.drawable.wallpaper_time_city_day,
+                    R.drawable.wallpaper_time_city_dusk, R.drawable.wallpaper_time_city_night}};
+    private static final int[] TIME_SCENE_NAMES = {
+            R.string.wp_t_peak, R.string.wp_t_forest, R.string.wp_t_lake, R.string.wp_t_city};
+    private int currentTimeBand = -1;
     private static final int[] WALLPAPERS = {
             R.drawable.wallpaper, R.drawable.wallpaper_waves,
             R.drawable.wallpaper_lake, R.drawable.wallpaper_borealis,
@@ -104,6 +121,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         public void run() {
             updateGreeting();
             updateWifiLabel();
+            refreshTimeWallpaper();
             handler.postDelayed(this, MINUTE_MS);
         }
     };
@@ -122,7 +140,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         btnWifi = findViewById(R.id.btnWifi);
         wallpaperView = findViewById(R.id.wallpaper);
         wallpaperIndex = resolveWallpaperIndex();
-        wallpaperView.setImageResource(WALLPAPERS[wallpaperIndex]);
+        applyCurrentWallpaper(false);
         if (wallpaperMotion()) createWallpaperDrift();
 
         grid = findViewById(R.id.grid);
@@ -234,6 +252,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         grid.scheduleLayoutAnimation();
         updateGreeting();
         updateWifiLabel();
+        refreshTimeWallpaper();
         handler.postDelayed(minuteTick, MINUTE_MS);
 
         // Return to the tile we left from, or the first one.
@@ -514,12 +533,78 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         return -1;
     }
 
-    /** Switches the backdrop to a built-in wallpaper and remembers the choice. */
+    /** Switches the backdrop to a built-in wallpaper and remembers the choice.
+     *  Picking a fixed wallpaper turns the time-of-day mode off. */
     private void applyWallpaper(int index) {
         wallpaperIndex = index;
         wallpaperView.setImageResource(WALLPAPERS[index]);
         getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                .putString(KEY_WALLPAPER_KEY, WALLPAPER_KEYS[index]).commit();
+                .putString(KEY_WALLPAPER_KEY, WALLPAPER_KEYS[index])
+                .putBoolean(KEY_WALLPAPER_TIME, false).commit();
+        currentTimeBand = -1;
+    }
+
+    // ---- time-of-day wallpaper ---------------------------------------------------------------------
+
+    private boolean wallpaperTimeMode() {
+        return getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getBoolean(KEY_WALLPAPER_TIME, false);
+    }
+
+    private int timeScene() {
+        int scene = getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+                .getInt(KEY_WALLPAPER_SCENE, 0);
+        return Math.max(0, Math.min(scene, TIME_WALLPAPERS.length - 1));
+    }
+
+    /** Clicking a time-of-day scene opens it: time mode on, that scene showing. There is
+     *  no switch to turn off — picking any fixed wallpaper leaves time mode again. */
+    private void openTimeScene(int scene) {
+        getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putInt(KEY_WALLPAPER_SCENE, scene)
+                .putBoolean(KEY_WALLPAPER_TIME, true).commit();
+        currentTimeBand = -1;
+        applyCurrentWallpaper(true);
+    }
+
+    /** 0 dawn (05–08), 1 day (09–16), 2 dusk (17–20), 3 night (21–04). */
+    private static int timeBand() {
+        int h = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+        if (h >= 5 && h < 9) return 0;
+        if (h >= 9 && h < 17) return 1;
+        if (h >= 17 && h < 21) return 2;
+        return 3;
+    }
+
+    private void applyCurrentWallpaper(boolean fade) {
+        if (wallpaperTimeMode()) {
+            currentTimeBand = timeBand();
+            setWallpaperImage(TIME_WALLPAPERS[timeScene()][currentTimeBand], fade);
+        } else {
+            setWallpaperImage(WALLPAPERS[wallpaperIndex], fade);
+        }
+    }
+
+    /** Called every minute and on resume: cross over to the new time of day when it arrives. */
+    private void refreshTimeWallpaper() {
+        if (!wallpaperTimeMode()) return;
+        int band = timeBand();
+        if (band != currentTimeBand) {
+            currentTimeBand = band;
+            setWallpaperImage(TIME_WALLPAPERS[timeScene()][band], true);
+        }
+    }
+
+    private void setWallpaperImage(int res, boolean fade) {
+        if (!fade) {
+            wallpaperView.setImageResource(res);
+            return;
+        }
+        wallpaperView.animate().cancel();
+        wallpaperView.animate().alpha(0f).setDuration(320).withEndAction(() -> {
+            wallpaperView.setImageResource(res);
+            wallpaperView.animate().alpha(1f).setDuration(480).start();
+        }).start();
     }
 
     // ---- phone remote ----------------------------------------------------------------------------
@@ -667,6 +752,49 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         panel.post(() -> focusTarget.requestFocus());
     }
 
+    /** One picker entry: rounded thumbnail over a centred name; the thumbnail is the tag. */
+    private LinearLayout wallpaperThumb(int imageRes, int nameRes, View.OnClickListener click) {
+        LinearLayout item = new LinearLayout(this);
+        item.setOrientation(LinearLayout.VERTICAL);
+        int pad = dp(6);
+        item.setPadding(pad, pad, pad, pad);
+
+        ImageView thumb = new ImageView(this);
+        thumb.setLayoutParams(new LinearLayout.LayoutParams(dp(176), dp(99)));
+        thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        thumb.setImageResource(imageRes);
+        thumb.setFocusable(true);
+        thumb.setClickable(true);
+        thumb.setOutlineProvider(new ViewOutlineProvider() {
+            @Override
+            public void getOutline(View view, Outline outline) {
+                outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 14f * density);
+            }
+        });
+        thumb.setClipToOutline(true);
+        thumb.setOnFocusChangeListener((v, focused) -> {
+            float s = focused ? 1.06f : 1.0f;
+            v.animate().scaleX(s).scaleY(s).setDuration(150).start();
+        });
+        thumb.setOnClickListener(click);
+
+        TextView name = new TextView(this);
+        LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(
+                dp(176), ViewGroup.LayoutParams.WRAP_CONTENT);
+        nameLp.topMargin = dp(6);
+        name.setLayoutParams(nameLp);
+        name.setText(nameRes);
+        name.setTextSize(12);
+        name.setTextColor(0xF2FFFFFF);
+        name.setGravity(Gravity.CENTER);
+        name.setSingleLine(true);
+
+        item.addView(thumb);
+        item.addView(name);
+        item.setTag(thumb);
+        return item;
+    }
+
     /** Thumbnail strip of the built-in wallpapers, dropped below the wallpaper pill. */
     private void showWallpaperPicker() {
         View panel = getLayoutInflater().inflate(R.layout.popup_wallpapers, root, false);
@@ -680,6 +808,14 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             setWallpaperMotion(on);
             motionState.setText(getString(on ? R.string.wp_on : R.string.wp_off));
         });
+        // The thumbnail area scrolls: on TVs whose density makes four rows taller than the
+        // screen, the panel used to clip the last row out of reach. Cap its height and let
+        // focus movement roll it.
+        ScrollView wpScroll = panel.findViewById(R.id.wpScroll);
+        ViewGroup.LayoutParams slp = wpScroll.getLayoutParams();
+        slp.height = Math.min(4 * dp(141),
+                (int) (getResources().getDisplayMetrics().heightPixels * 0.55f));
+        wpScroll.setLayoutParams(slp);
         LinearLayout row = panel.findViewById(R.id.wpRow);
         LinearLayout row2 = panel.findViewById(R.id.wpRow2);
         LinearLayout row3 = panel.findViewById(R.id.wpRow3);
@@ -693,49 +829,27 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         View focusTarget = null;
         for (int i = 0; i < WALLPAPERS.length; i++) {
             final int index = i;
-            LinearLayout item = new LinearLayout(this);
-            item.setOrientation(LinearLayout.VERTICAL);
-            int pad = dp(6);
-            item.setPadding(pad, pad, pad, pad);
-
-            ImageView thumb = new ImageView(this);
-            thumb.setLayoutParams(new LinearLayout.LayoutParams(dp(176), dp(99)));
-            thumb.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            thumb.setImageResource(WALLPAPERS[i]);
-            thumb.setFocusable(true);
-            thumb.setClickable(true);
-            thumb.setOutlineProvider(new ViewOutlineProvider() {
-                @Override
-                public void getOutline(View view, Outline outline) {
-                    outline.setRoundRect(0, 0, view.getWidth(), view.getHeight(), 14f * density);
-                }
-            });
-            thumb.setClipToOutline(true);
-            thumb.setOnFocusChangeListener((v, focused) -> {
-                float s = focused ? 1.06f : 1.0f;
-                v.animate().scaleX(s).scaleY(s).setDuration(150).start();
-            });
-            thumb.setOnClickListener(v -> {
+            LinearLayout item = wallpaperThumb(WALLPAPERS[i], WALLPAPER_NAMES[i], v -> {
                 applyWallpaper(index);
                 popup.dismiss();
             });
-
-            TextView name = new TextView(this);
-            LinearLayout.LayoutParams nameLp = new LinearLayout.LayoutParams(
-                    dp(176), ViewGroup.LayoutParams.WRAP_CONTENT);
-            nameLp.topMargin = dp(6);
-            name.setLayoutParams(nameLp);
-            name.setText(WALLPAPER_NAMES[i]);
-            name.setTextSize(12);
-            name.setTextColor(0xF2FFFFFF);
-            name.setGravity(Gravity.CENTER);
-            name.setSingleLine(true);
-
-            item.addView(thumb);
-            item.addView(name);
             (i < 4 ? row : i < 8 ? row2 : row3).addView(item);   // 12 wallpapers: 4 per row, three rows
-            if (i == wallpaperIndex) focusTarget = thumb;
+            if (i == wallpaperIndex) focusTarget = (View) item.getTag();
         }
+
+        // Fourth row: the time-of-day scenes. Picking one turns time mode on with that scene.
+        LinearLayout row4 = panel.findViewById(R.id.wpRow4);
+        View sceneFocus = null;
+        for (int s = 0; s < TIME_WALLPAPERS.length; s++) {
+            final int scene = s;
+            LinearLayout item = wallpaperThumb(TIME_WALLPAPERS[s][1], TIME_SCENE_NAMES[s], v -> {
+                openTimeScene(scene);
+                popup.dismiss();
+            });
+            row4.addView(item);
+            if (s == timeScene()) sceneFocus = (View) item.getTag();
+        }
+        if (wallpaperTimeMode() && sceneFocus != null) focusTarget = sceneFocus;
 
         // The pill sits near the right edge: hang the panel below it, end-aligned, so it stays on screen.
         popup.showAsDropDown(btnWallpaper, 0, dp(10), Gravity.END);

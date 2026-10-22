@@ -175,10 +175,68 @@ public class TvAccessibilityService extends AccessibilityService {
     public void scrollPointer(float dx, float dy) {
         handler.post(() -> {
             showPointer();
-            int x2 = (int) clamp(px + dx, 0, screenW - 1);
-            int y2 = (int) clamp(py + dy, 0, screenH - 1);
-            gesture((int) px, (int) py, x2, y2, 170);
+            boolean vertical = Math.abs(dy) >= Math.abs(dx);
+            float total = vertical ? dy : dx;
+            // Fingers moving up/left (negative travel) mean "show me more": scroll forward.
+            boolean forward = total < 0;
+            int steps = (int) Math.min(3, Math.max(1, Math.round(Math.abs(total) / 140f)));
+            if (nodeScroll(forward, steps)) return;
+            // Fallback for screens with no scrollable accessibility node: one accumulated swipe.
+            int x2 = (int) clamp(px + dx * 2, 0, screenW - 1);
+            int y2 = (int) clamp(py + dy * 2, 0, screenH - 1);
+            gesture((int) px, (int) py, x2, y2, 220);
         });
+    }
+
+    /** Scrolls the scrollable node under the pointer (or the first one on screen).
+     *  Injected gestures are unreliable on some TVs; node scroll actions are not. */
+    private boolean nodeScroll(boolean forward, int steps) {
+        try {
+            AccessibilityNodeInfo root = getRootInActiveWindow();
+            if (root == null) return false;
+            AccessibilityNodeInfo target = findScrollableAt(root, (int) px, (int) py);
+            if (target == null) target = findScrollable(root);
+            if (target == null) return false;
+            int action = forward ? AccessibilityNodeInfo.ACTION_SCROLL_FORWARD
+                    : AccessibilityNodeInfo.ACTION_SCROLL_BACKWARD;
+            boolean any = false;
+            for (int i = 0; i < steps; i++) any |= target.performAction(action);
+            return any;
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private AccessibilityNodeInfo findScrollableAt(AccessibilityNodeInfo node, int x, int y) {
+        Rect r = new Rect();
+        node.getBoundsInScreen(r);
+        if (!r.contains(x, y)) return null;
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo child = node.getChild(i);
+            if (child == null) continue;
+            AccessibilityNodeInfo hit = findScrollableAt(child, x, y);
+            if (hit != null) return hit;
+        }
+        return node.isScrollable() ? node : null;
+    }
+
+    private AccessibilityNodeInfo findScrollable(AccessibilityNodeInfo node) {
+        if (node.isScrollable()) return node;
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo child = node.getChild(i);
+            if (child == null) continue;
+            AccessibilityNodeInfo hit = findScrollable(child);
+            if (hit != null) return hit;
+        }
+        return null;
+    }
+
+    /** Power key: puts the TV to sleep. (Waking it again needs the physical remote —
+     *  Android gives apps no way to power a TV back on.) */
+    public void sleep() {
+        if (android.os.Build.VERSION.SDK_INT >= 28) {
+            performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN);
+        }
     }
 
     private void gesture(int x1, int y1, int x2, int y2, int durationMs) {

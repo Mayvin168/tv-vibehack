@@ -30,6 +30,11 @@
     <string name="wp_lava">熔岩</string>
     <string name="wp_falls">月光瀑布</string>
     <string name="wp_motion">动态效果</string>
+    <string name="wp_time">时光壁纸</string>
+    <string name="wp_t_peak">时光·山峰</string>
+    <string name="wp_t_forest">时光·云雾森林</string>
+    <string name="wp_t_lake">时光·山湖</string>
+    <string name="wp_t_city">时光·都市</string>
     <string name="wp_on">开</string>
     <string name="wp_off">关</string>
     <string name="remote_service_label">TV 手机遥控</string>

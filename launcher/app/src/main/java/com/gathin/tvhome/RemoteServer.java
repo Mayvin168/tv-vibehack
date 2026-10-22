@@ -1,6 +1,7 @@
 package com.gathin.tvhome;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.util.Base64;
@@ -179,7 +180,8 @@ final class RemoteServer {
                     break;
                 }
                 case "/status": {
-                    String json = "{\"a11y\":" + TvAccessibilityService.isRunning() + "}";
+                    String json = "{\"a11y\":" + TvAccessibilityService.isRunning()
+                            + ",\"screen\":" + screenOn() + "}";
                     writeHttp(out, 200, "application/json", json.getBytes(StandardCharsets.UTF_8));
                     break;
                 }
@@ -317,9 +319,35 @@ final class RemoteServer {
 
     private static void sendStatus(OutputStream out) {
         try {
-            String json = "{\"t\":\"status\",\"a11y\":" + TvAccessibilityService.isRunning() + "}";
+            String json = "{\"t\":\"status\",\"a11y\":" + TvAccessibilityService.isRunning()
+                    + ",\"screen\":" + screenOn() + "}";
             sendFrame(out, 1, json.getBytes(StandardCharsets.UTF_8));
         } catch (Exception ignored) {
+        }
+    }
+
+    /** The power key is a toggle: screen on → sleep; screen off but process alive → light it up. */
+    private static void togglePower() {
+        if (screenOn()) {
+            TvAccessibilityService svc = TvAccessibilityService.get();
+            if (svc != null) svc.sleep();
+        } else {
+            try {
+                Intent i = new Intent(appContext, WakeActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                appContext.startActivity(i);
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private static boolean screenOn() {
+        try {
+            android.os.PowerManager pm = (android.os.PowerManager)
+                    appContext.getSystemService(Context.POWER_SERVICE);
+            return pm != null && pm.isInteractive();
+        } catch (Exception ignored) {
+            return true;
         }
     }
 
@@ -336,7 +364,7 @@ final class RemoteServer {
                     else sendStatus(out);
                     break;
                 case "scroll":
-                    if (svc != null) svc.scrollPointer((float) msg.optDouble("dx") * 2.0f, (float) msg.optDouble("dy") * 2.0f);
+                    if (svc != null) svc.scrollPointer((float) msg.optDouble("dx"), (float) msg.optDouble("dy"));
                     else sendStatus(out);
                     break;
                 case "tap":
@@ -371,6 +399,10 @@ final class RemoteServer {
     }
 
     private static void onKey(String key, TvAccessibilityService svc, OutputStream out) {
+        if ("power".equals(key)) {
+            togglePower();
+            return;
+        }
         switch (key) {
             case "volup":
                 adjustVolume(AudioManager.ADJUST_RAISE);

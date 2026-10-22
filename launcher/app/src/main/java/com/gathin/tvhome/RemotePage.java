@@ -23,6 +23,7 @@ final class RemotePage {
               header .title { font-size: 17px; font-weight: 600; }
               #dot { width: 9px; height: 9px; border-radius: 50%; background: #e5534b; }
               #dot.on { background: #3fb950; }
+              #tvstate { margin-left: auto; font-size: 13px; color: #8b95a7; }
               #warn { display: none; margin: 8px 16px 0; padding: 10px 12px; border-radius: 10px;
                 background: #3a2c12; color: #f0c169; font-size: 13px; line-height: 1.5; }
               #pad { flex: 1; margin: 12px 16px 8px; border-radius: 18px; background: #171c26;
@@ -53,7 +54,7 @@ final class RemotePage {
             </style>
             </head>
             <body>
-            <header><div id="dot"></div><div class="title">TV 手机遥控</div></header>
+            <header><div id="dot"></div><div class="title">TV 手机遥控</div><div id="tvstate">电视：离线</div></header>
             <div id="warn">电视上还没开启无障碍服务，触控板暂时用不了。<br>在电视上打开：设置 → 无障碍 → TV手机遥控 → 开启，然后回到这里。</div>
             <div id="pad"><span>单指滑动：移动指针<br>双指滑动：滚动页面<br>轻点：点击</span></div>
             <div id="dpad"><div class="grid">
@@ -70,6 +71,7 @@ final class RemotePage {
               <button id="bhome">主页</button>
               <button id="bdpad">方向键</button>
               <button id="bkb">键盘</button>
+              <button id="bpower">电源</button>
             </div>
             <footer><div class="row" style="padding:0">
               <button id="bvoldn">音量 −</button>
@@ -83,19 +85,31 @@ final class RemotePage {
               <button id="pinbtn">连接</button>
             </div>
             <script>
-            var ws = null, token = localStorage.getItem('tvrt') || '';
+            var ws = null, token = localStorage.getItem('tvrt') || '', pollTimer = null;
             var urlKey = new URLSearchParams(location.search).get('k');
             if (urlKey) { token = urlKey; localStorage.setItem('tvrt', token); }
             var dot = document.getElementById('dot'), warn = document.getElementById('warn');
+            var tvstate = document.getElementById('tvstate');
             function connect() {
               if (!token) { document.getElementById('pin').style.display = 'flex'; return; }
               ws = new WebSocket('ws://' + location.host + '/ws?token=' + encodeURIComponent(token));
-              ws.onopen = function() { dot.className = 'on'; send({t: 'status'}); };
-              ws.onclose = function() { dot.className = ''; setTimeout(connect, 2500); };
+              ws.onopen = function() {
+                dot.className = 'on'; send({t: 'status'});
+                clearInterval(pollTimer);
+                pollTimer = setInterval(function() { send({t: 'status'}); }, 5000);
+              };
+              ws.onclose = function() {
+                dot.className = ''; tvstate.textContent = '电视：离线';
+                clearInterval(pollTimer);
+                setTimeout(connect, 2500);
+              };
               ws.onerror = function() { try { ws.close(); } catch (e) {} };
               ws.onmessage = function(ev) {
                 var m = JSON.parse(ev.data);
-                if (m.t === 'status') warn.style.display = m.a11y ? 'none' : 'block';
+                if (m.t === 'status') {
+                  warn.style.display = m.a11y ? 'none' : 'block';
+                  tvstate.textContent = m.screen === false ? '电视：关屏' : '电视：开屏';
+                }
                 if (m.t === 'textval') { var kb = document.getElementById('kb'); kb.value = m.s || ''; }
               };
             }
@@ -147,22 +161,23 @@ final class RemotePage {
               pointers.forEach(function(p) { x += p.x; y += p.y; });
               return {x: x / pointers.size, y: y / pointers.size};
             }
-            var lastScrollFlush = 0;
             setInterval(function() {
               if (accX !== 0 || accY !== 0) { send({t: 'move', dx: accX, dy: accY}); accX = 0; accY = 0; }
-              var now = Date.now();
-              if ((sAccX !== 0 || sAccY !== 0) && now - lastScrollFlush >= 110) {
-                lastScrollFlush = now;
+              // Scroll goes out in meaningful chunks, not a drip of tiny gestures.
+              if (Math.abs(sAccX) >= 40 || Math.abs(sAccY) >= 40) {
                 send({t: 'scroll', dx: sAccX, dy: sAccY}); sAccX = 0; sAccY = 0;
               }
             }, 24);
+            setInterval(function() {
+              if (sAccX !== 0 || sAccY !== 0) { send({t: 'scroll', dx: sAccX, dy: sAccY}); sAccX = 0; sAccY = 0; }
+            }, 400);
             // ---- buttons ----
             function key(id, k) {
               document.getElementById(id).addEventListener('pointerdown', function(e) {
                 e.preventDefault(); send({t: 'key', k: k});
               });
             }
-            key('bback', 'back'); key('bhome', 'home');
+            key('bback', 'back'); key('bhome', 'home'); key('bpower', 'power');
             key('bvoldn', 'voldn'); key('bvolup', 'volup'); key('bmute', 'mute');
             document.querySelectorAll('#dpad button').forEach(function(b) {
               b.addEventListener('pointerdown', function(e) {

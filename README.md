@@ -13,20 +13,16 @@ Based on [Gathin23/tv-vibehack](https://github.com/Gathin23/tv-vibehack) (MIT). 
 - **Connection-aware network pill** — icon and label follow the active connection (Ethernet / Wi-Fi / Offline).
 - **Clean look** — no app-tinted background colors; neutral white frosted focus highlight; compact hero app title.
 - **Trilingual UI** — follows the system language (English / 中文 / Bahasa Indonesia).
-- **Phone remote** — tap the phone pill in the top bar, scan the QR code, and your phone browser becomes a touchpad remote: one finger moves the pointer, two fingers scroll, plus D-pad, volume and a keyboard that types straight into the TV. Needs the in-app accessibility service enabled once.
+- **Phone remote** — tap the phone pill in the top bar, scan the QR code, and your phone browser becomes a touchpad remote: one finger moves the pointer, two fingers scroll, plus D-pad, volume, a power toggle, a live TV on/off indicator, and a keyboard that types straight into the TV. Needs the in-app accessibility service enabled once.
+- **Time-of-day wallpapers** — four scenes (Snow Peak, Misty Forest, Mountain Lake, City) that change with the clock: each place is graded into dawn, day, dusk and night looks and cross-fades between them automatically.
 
 ### Version history
 
-**launcher-v2.1.1 — 2026-10-22** (fixes after real-device testing, APK in Releases)
+**launcher-v2.5 — 2026-10-22** (APK in Releases)
 
-- Remote tap fixed: a real node click first, a longer tap gesture as fallback.
-- Volume keys now show the TV volume bar; D-pad keys step the pointer instead of accessibility focus search.
-
-**launcher-v2.1 — 2026-10-22** (APK in Releases)
-
-- Phone remote: the launcher serves a remote page on the home network (port 8899); pair by QR code or the 4-digit code shown on the TV.
-- Touchpad with an on-screen pointer (accessibility gestures): one-finger move, two-finger scroll, tap to click; D-pad via accessibility focus, plus Back/Home, volume keys, and phone-keyboard text sync into the focused field.
-- New phone pill in the top bar opens the pairing panel with the QR code, address and service status.
+- Time-of-day wallpapers: 4 scenes × 4 looks (dawn / day / dusk / night, bands 05–09 / 09–17 / 17–21 / 21–05), cross-fading automatically with the time. Picking a scene in the wallpaper picker opens it directly; picking any of the 12 static wallpapers leaves time mode again.
+- The wallpaper picker now scrolls — on TVs whose density made the panel taller than the screen, the last row used to be clipped out of reach.
+- Phone remote: power toggle (sleeps the TV, and can relight the screen when the TV is only asleep), live TV state in the page corner (Screen on / Screen off / Offline), and two-finger scrolling rebuilt on accessibility scroll actions instead of injected gestures, which some TVs swallow.
 
 **launcher-v2.0 — 2026-10-20** (final custom build, APK in Releases)
 
