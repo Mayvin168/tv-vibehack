@@ -127,8 +127,49 @@ public class TvAccessibilityService extends AccessibilityService {
     public void tapPointer() {
         handler.post(() -> {
             showPointer();
-            gesture((int) px, (int) py, (int) px, (int) py, 70);
+            // Prefer a real node click when a small clickable widget sits under the pointer
+            // (deterministic in native UI); fall back to an injected tap for web content.
+            if (clickNodeAt((int) px, (int) py)) return;
+            // A zero-length, very short tap gets swallowed on some TVs: give the stroke a
+            // couple of pixels of travel and a longer press.
+            int x2 = (int) clamp(px + 2, 0, screenW - 1);
+            int y2 = (int) clamp(py + 2, 0, screenH - 1);
+            gesture((int) px, (int) py, x2, y2, 120);
         });
+    }
+
+    /** Deepest clickable node containing the point, or null. Refuses full-screen containers
+     *  and the WebView root itself, where a positional gesture is the honest click. */
+    private boolean clickNodeAt(int x, int y) {
+        try {
+            AccessibilityNodeInfo root = getRootInActiveWindow();
+            if (root == null) return false;
+            AccessibilityNodeInfo hit = findClickableAt(root, x, y);
+            if (hit == null) return false;
+            Rect r = new Rect();
+            hit.getBoundsInScreen(r);
+            long area = (long) r.width() * r.height();
+            String cls = hit.getClassName() != null ? hit.getClassName().toString() : "";
+            if (cls.contains("WebView") || area > (long) screenW * screenH * 3 / 5) return false;
+            return hit.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+        } catch (Exception ignored) {
+            return false;
+        }
+    }
+
+    private AccessibilityNodeInfo findClickableAt(AccessibilityNodeInfo node, int x, int y) {
+        Rect r = new Rect();
+        node.getBoundsInScreen(r);
+        if (!r.contains(x, y)) return null;
+        AccessibilityNodeInfo found = null;
+        for (int i = 0; i < node.getChildCount(); i++) {
+            AccessibilityNodeInfo child = node.getChild(i);
+            if (child == null) continue;
+            AccessibilityNodeInfo hit = findClickableAt(child, x, y);
+            if (hit != null) found = hit;
+        }
+        if (found != null) return found;
+        return node.isClickable() ? node : null;
     }
 
     public void scrollPointer(float dx, float dy) {
@@ -161,48 +202,21 @@ public class TvAccessibilityService extends AccessibilityService {
         performGlobalAction(GLOBAL_ACTION_HOME);
     }
 
-    /** D-pad navigation through the accessibility tree (best effort; web content ignores it,
-     *  which is what the touchpad is for). */
+    /** D-pad keys step the pointer (150dp a press): predictable everywhere, web pages
+     *  included, unlike accessibility focus search which many screens silently ignore. */
     public void pressDpad(int direction) {
         handler.post(() -> {
-            AccessibilityNodeInfo root = getRootInActiveWindow();
-            if (root == null) return;
-            try {
-                AccessibilityNodeInfo focused = root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
-                if (focused == null) focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
-                AccessibilityNodeInfo from = focused != null ? focused : root;
-                AccessibilityNodeInfo target = from.focusSearch(direction);
-                if (target != null) {
-                    target.performAction(AccessibilityNodeInfo.ACTION_ACCESSIBILITY_FOCUS);
-                    target.performAction(AccessibilityNodeInfo.ACTION_FOCUS);
-                }
-            } catch (Exception ignored) {
-            }
+            float step = 150 * getResources().getDisplayMetrics().density;
+            if (direction == View.FOCUS_LEFT) px = clamp(px - step, 0, screenW - 1);
+            else if (direction == View.FOCUS_RIGHT) px = clamp(px + step, 0, screenW - 1);
+            else if (direction == View.FOCUS_UP) py = clamp(py - step, 0, screenH - 1);
+            else if (direction == View.FOCUS_DOWN) py = clamp(py + step, 0, screenH - 1);
+            showPointer();
         });
     }
 
     public void pressOk() {
-        handler.post(() -> {
-            AccessibilityNodeInfo root = getRootInActiveWindow();
-            AccessibilityNodeInfo focused = null;
-            if (root != null) {
-                try {
-                    focused = root.findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY);
-                    if (focused == null) focused = root.findFocus(AccessibilityNodeInfo.FOCUS_INPUT);
-                } catch (Exception ignored) {
-                }
-            }
-            if (focused != null && focused.performAction(AccessibilityNodeInfo.ACTION_CLICK)) return;
-            if (focused != null) {
-                Rect r = new Rect();
-                focused.getBoundsInScreen(r);
-                if (!r.isEmpty()) {
-                    gesture(r.centerX(), r.centerY(), r.centerX(), r.centerY(), 70);
-                    return;
-                }
-            }
-            tapPointer();
-        });
+        tapPointer();
     }
 
     /** Replaces the text of the currently focused input field with what the phone typed. */

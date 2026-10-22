@@ -133,7 +133,7 @@ final class RemotePage {
               var wasSingle = pointers.size === 1;
               pointers.delete(e.pointerId);
               if (pointers.size === 0) {
-                if (wasSingle && Date.now() - downAt < 260 && moved < 12) send({t: 'tap'});
+                if (wasSingle && Date.now() - downAt < 300 && moved < 16) send({t: 'tap'});
                 lastCentroid = null;
               } else {
                 lastCentroid = centroid();
@@ -147,9 +147,14 @@ final class RemotePage {
               pointers.forEach(function(p) { x += p.x; y += p.y; });
               return {x: x / pointers.size, y: y / pointers.size};
             }
+            var lastScrollFlush = 0;
             setInterval(function() {
               if (accX !== 0 || accY !== 0) { send({t: 'move', dx: accX, dy: accY}); accX = 0; accY = 0; }
-              if (sAccX !== 0 || sAccY !== 0) { send({t: 'scroll', dx: sAccX, dy: sAccY}); sAccX = 0; sAccY = 0; }
+              var now = Date.now();
+              if ((sAccX !== 0 || sAccY !== 0) && now - lastScrollFlush >= 110) {
+                lastScrollFlush = now;
+                send({t: 'scroll', dx: sAccX, dy: sAccY}); sAccX = 0; sAccY = 0;
+              }
             }, 24);
             // ---- buttons ----
             function key(id, k) {

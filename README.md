@@ -17,6 +17,11 @@ Based on [Gathin23/tv-vibehack](https://github.com/Gathin23/tv-vibehack) (MIT). 
 
 ### Version history
 
+**launcher-v2.1.1 — 2026-10-22** (fixes after real-device testing, APK in Releases)
+
+- Remote tap fixed: a real node click first, a longer tap gesture as fallback.
+- Volume keys now show the TV volume bar; D-pad keys step the pointer instead of accessibility focus search.
+
 **launcher-v2.1 — 2026-10-22** (APK in Releases)
 
 - Phone remote: the launcher serves a remote page on the home network (port 8899); pair by QR code or the 4-digit code shown on the TV.

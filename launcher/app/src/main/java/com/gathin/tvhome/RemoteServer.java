@@ -419,7 +419,7 @@ final class RemoteServer {
     private static void adjustVolume(int direction) {
         try {
             AudioManager am = (AudioManager) appContext.getSystemService(Context.AUDIO_SERVICE);
-            if (am != null) am.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, 0);
+            if (am != null) am.adjustStreamVolume(AudioManager.STREAM_MUSIC, direction, AudioManager.FLAG_SHOW_UI);
         } catch (Exception ignored) {
         }
     }
